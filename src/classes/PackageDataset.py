@@ -6,8 +6,11 @@ from torch.utils.data import Dataset
 
 
 class PackageDataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform=None):
-        self.data = pd.read_csv(csv_file)
+    def __init__(self, csv_file, root_dir, transform=None, type='train'):
+        if type == 'train':
+            self.data = pd.read_csv(csv_file)
+        else:
+            self.data = pd.read_csv(csv_file, header=None, names=['img_name', 'label'])
         self.root_dir = root_dir
         self.transform = transform
 

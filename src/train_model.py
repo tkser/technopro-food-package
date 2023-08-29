@@ -24,7 +24,7 @@ def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
     train_file_path = os.path.join(os.path.dirname(__file__), './data/input/train.csv')
     train_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/train')
 
-    train_dataset = PackageDataset(csv_file=train_file_path, root_dir=train_img_fd_path, transform=transform)
+    train_dataset = PackageDataset(csv_file=train_file_path, root_dir=train_img_fd_path, transform=transform, type='train')
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 
     model = PackageNet().to(device)
@@ -47,7 +47,7 @@ def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
     test_file_path = os.path.join(os.path.dirname(__file__), './data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/test')
     
-    test_dataset = PackageDataset(csv_file=test_file_path, root_dir=test_img_fd_path, transform=transform)
+    test_dataset = PackageDataset(csv_file=test_file_path, root_dir=test_img_fd_path, transform=transform, type='test')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model.eval()
@@ -58,13 +58,16 @@ def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
             images = images.to(device)
 
             outputs = model(images)
-            _, predicted = torch.max(outputs, 1)
-            predictions.extend(predicted.cpu().numpy())
+            predicts = outputs.softmax(dim=1)
+            predictions.append(predicts)
+    
+    predictions = torch.concatenate(predictions, dim=0).cpu().numpy()
+    predictions = predictions[:, 1]
     
     output_file_path = os.path.join(os.path.dirname(__file__), './data/output/predictions.csv')
     
-    submission_df = pd.read_csv(test_file_path)
-    submission_df[1] = predictions
+    submission_df = pd.read_csv(test_file_path, header=None, names=['img_name', 'label'])
+    submission_df['label'] = predictions
     submission_df.to_csv(output_file_path, index=False, header=False)
 
 
