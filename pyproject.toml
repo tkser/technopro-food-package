@@ -28,6 +28,7 @@ dev-dependencies = [
 
 [tool.rye.scripts]
 prepare = { cmd = "python ./src/prepare_data.py" }
+train = { cmd = "python ./src/train_model.py" }
 predict = { cmd = "python ./src/run_predict.py" }
 
 [[tool.rye.sources]]
