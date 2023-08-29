@@ -1,4 +1,5 @@
-*/data/**/*[.csv|.json|.feather|.zip|.png|.md]
+*/data/**/*[.csv|.md]
+*/data/**/*[.zip|.png]
 
 catboost_info/
 .ruff_cache/
