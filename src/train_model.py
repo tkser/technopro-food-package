@@ -11,7 +11,7 @@ from classes.PackageDataset import PackageDataset
 from classes.PackageNet import PackageNet
 
 
-def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
+def train(batch_size = 32, learning_rate = 1e-05, num_epochs = 25):
     set_seed(42)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -30,7 +30,7 @@ def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
     model = PackageNet().to(device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 
     for epoch in range(num_epochs):
         for images, labels in train_loader:
@@ -64,7 +64,7 @@ def train(batch_size = 32, learning_rate = 0.001, num_epochs = 10):
     predictions = torch.concatenate(predictions, dim=0).cpu().numpy()
     predictions = predictions[:, 1]
     
-    output_file_path = os.path.join(os.path.dirname(__file__), './data/output/predictions.csv')
+    output_file_path = os.path.join(os.path.dirname(__file__), './data/output/predictions1.csv')
     
     submission_df = pd.read_csv(test_file_path, header=None, names=['img_name', 'label'])
     submission_df['label'] = predictions

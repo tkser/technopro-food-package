@@ -20,7 +20,7 @@ class PackageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = os.path.join(self.root_dir, self.data.iloc[idx, 0])
         image = Image.open(img_name)
-        label = torch.tensor(self.data.iloc[idx, 1], dtype=torch.long)
+        label = torch.tensor(self.data.iloc[idx, 1], dtype=torch.long, device='cuda:0')
         
         if self.transform:
             image = self.transform(image)
