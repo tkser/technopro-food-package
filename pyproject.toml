@@ -27,18 +27,13 @@ dev-dependencies = [
 ]
 
 [tool.rye.scripts]
-prepare = { cmd = "python ./src/prepare_data.py" }
-train = { cmd = "python ./src/train_model.py" }
+prepare = { cmd = "python ./src/run_prepare.py" }
+train = { cmd = "python ./src/run_train.py" }
 predict = { cmd = "python ./src/run_predict.py" }
 
 [[tool.rye.sources]]
 name = "torch"
 url = "https://download.pytorch.org/whl/cu118"
-type = "index"
-
-[[tool.rye.sources]]
-name = "cudf"
-url = "https://pypi.nvidia.com"
 type = "index"
 
 [tool.hatch.metadata]
