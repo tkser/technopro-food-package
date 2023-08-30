@@ -24,22 +24,26 @@ def main():
         print("Error: train.zip and/or test.zip not found in the specified directory.")
         return
 
-    train_extract_path = os.path.join(input_data_dir, 'train')
-    test_extract_path = os.path.join(input_data_dir, 'test')
+    exract_zip_path = os.path.join(input_data_dir, 'images')
+    train_extract_path = os.path.join(exract_zip_path, 'train')
+    test_extract_path = os.path.join(exract_zip_path, 'test')
+
+    if not os.path.exists(exract_zip_path):
+        os.makedirs(exract_zip_path)
 
     if not os.path.exists(train_extract_path):
-        exract_zip_file(train_zip_path, input_data_dir)
+        exract_zip_file(train_zip_path, exract_zip_path)
         print("Extracted train.zip to {}".format(train_extract_path))
     else:
         print("train.zip already extracted to {}".format(train_extract_path))
     
     if not os.path.exists(test_extract_path):
-        exract_zip_file(test_zip_path, input_data_dir)
+        exract_zip_file(test_zip_path, exract_zip_path)
         print("Extracted test.zip to {}".format(test_extract_path))
     else:
         print("test.zip already extracted to {}".format(test_extract_path))
     
-    remove_macosx_dir(input_data_dir)
+    remove_macosx_dir(exract_zip_path)
     
 
 if __name__ == '__main__':

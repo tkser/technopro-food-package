@@ -7,8 +7,8 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 
 from utils.set_seed import set_seed
-from classes.PackageDataset import PackageDataset
-from classes.PackageNet import PackageNet
+from models.PackageModel.Dataset import PackageDataset
+from models.PackageModel.Net import PackageNet
 
 
 def train(batch_size = 32, learning_rate = 1e-05, num_epochs = 25):
@@ -22,7 +22,7 @@ def train(batch_size = 32, learning_rate = 1e-05, num_epochs = 25):
     ])
 
     train_file_path = os.path.join(os.path.dirname(__file__), './data/input/train.csv')
-    train_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/train')
+    train_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/images/train')
 
     train_dataset = PackageDataset(csv_file=train_file_path, root_dir=train_img_fd_path, transform=transform, type='train')
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
@@ -45,7 +45,7 @@ def train(batch_size = 32, learning_rate = 1e-05, num_epochs = 25):
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
 
     test_file_path = os.path.join(os.path.dirname(__file__), './data/input/sample_submit.csv')
-    test_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/test')
+    test_img_fd_path = os.path.join(os.path.dirname(__file__), './data/input/images/test')
     
     test_dataset = PackageDataset(csv_file=test_file_path, root_dir=test_img_fd_path, transform=transform, type='test')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
