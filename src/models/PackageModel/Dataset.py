@@ -1,7 +1,5 @@
 import os
-import torch
-import pandas as pd
-from PIL import Image
+import cv2
 from torch.utils.data import Dataset
 
 
@@ -18,10 +16,11 @@ class PackageDataset(Dataset):
 
     def __getitem__(self, idx):
         img_name = os.path.join(self.root_dir, self.image_name_list[idx])
-        image = Image.open(img_name)
+        image = cv2.imread(img_name)
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
         if self.transform:
-            image = self.transform[self.phase](image)
+            image = self.transform[self.phase](image=image)["image"]
         
         label = self.label_list[idx]
         
