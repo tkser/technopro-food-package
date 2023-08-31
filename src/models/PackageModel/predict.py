@@ -2,7 +2,8 @@ import os
 import torch
 import pandas as pd
 from torch.utils.data import DataLoader
-from torchvision import transforms
+import albumentations as A
+import albumentations.pytorch as APT
 
 from models.PackageModel.Net import PackageNet
 from models.PackageModel.Dataset import PackageDataset
@@ -16,13 +17,15 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     set_seed(seed)
 
     transform = {
-        "train": transforms.Compose([
-            transforms.Resize((128, 128)),
-            transforms.ToTensor(),
+        "train": A.Compose([
+            A.Resize((128, 128)),
+            A.Normalize(),
+            APT.ToTensorV2(),
         ]),
-        "val": transforms.Compose([
-            transforms.Resize((128, 128)),
-            transforms.ToTensor(),
+        "val": A.Compose([
+            A.Resize((128, 128)),
+            A.Normalize(),
+            APT.ToTensorV2(),
         ]),
     }
 
