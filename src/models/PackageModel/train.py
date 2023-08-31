@@ -1,6 +1,5 @@
 import os
 import pandas as pd
-import torch
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
@@ -14,7 +13,7 @@ from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 32, learning_rate = 1e-03, num_epochs = 8, seed = 42):
+def train(batch_size = 32, learning_rate = 1e-03, num_epochs = 16, seed = 42):
 
     set_seed(seed)
 

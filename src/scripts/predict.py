@@ -1,14 +1,14 @@
-import os
 import torch
-import logging
-from sklearn.metrics import roc_auc_score
+from torch.utils.data import DataLoader
 
-from typing import Callable, Optional
+from utils.logger import logger
+
+from typing import Optional
 
 
 def predict(
         net: torch.nn.Module,
-        dataloader: torch.utils.data.DataLoader,
+        dataloader: DataLoader,
         device: Optional[str] = None
     ) -> list :
 
@@ -16,6 +16,8 @@ def predict(
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     net.to(device)
+
+    logger.debug(f"Starting prediction on {device}")
 
     pred_list = []
 
@@ -29,5 +31,7 @@ def predict(
         preds = preds.to('cpu').numpy()
 
         pred_list.extend(preds)
+    
+    logger.debug(f"Finished prediction")
     
     return pred_list

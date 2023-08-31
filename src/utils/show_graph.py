@@ -1,5 +1,7 @@
 import matplotlib.pyplot as plt
 
+from typing import Dict
+
 
 def plot_history(history: Dict[str, list], title: str = "History"):
     plt.figure(figsize=(12, 6))

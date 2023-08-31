@@ -1,5 +1,4 @@
 import os
-import logging
 
 import torch
 from torch import nn, optim
@@ -7,7 +6,9 @@ from torch.utils.data import DataLoader
 
 from sklearn.metrics import roc_auc_score
 
-from typing import Dict, Callable, Optional
+from utils.logger import logger
+
+from typing import Dict, Tuple, Callable, Optional
 
 
 def train(
@@ -25,6 +26,15 @@ def train(
 
     net.to(device)
 
+    logger.debug(f"Starting training on {device}")
+
+    logger.debug(f"Model parameters:")
+    for name, param in net.named_parameters():
+        logger.debug(f"{name}: {param.shape}")
+    
+    logger.debug(f"Optimizer: {optimizer}")
+    logger.debug(f"Loss function: {loss_fn}")
+
     best_auc = 0.0
     best_auc_model_path = None
 
@@ -33,8 +43,8 @@ def train(
 
     for epoch in range(epochs):
 
-        logging.debug(f'Epoch: {epoch+1} / {epochs}')
-        logging.debug('--------------------------')
+        logger.debug(f'Epoch: {epoch+1} / {epochs}')
+        logger.debug('--------------------------')
 
         for phase in ['train', 'val']:
 
@@ -72,14 +82,14 @@ def train(
                     labels = labels.to('cpu').numpy()
                     true_list.extend(labels)
 
-            epoch_loss = epoch_loss / len(dataloaders_dict[phase].dataset)
+            epoch_loss = epoch_loss / len(dataloaders[phase].dataset)
 
             epoch_auc = roc_auc_score(true_list, pred_list)
 
             loss_history[phase].append(epoch_loss)
             auc_history[phase].append(epoch_auc)
 
-            logging.debug(f'{phase} Loss: {epoch_loss:.4f} AUC: {epoch_auc:.4f}')            
+            logger.debug(f'{phase} Loss: {epoch_loss:.4f} AUC: {epoch_auc:.4f}')            
 
             if (phase == 'val') and (epoch_auc > best_auc):
 
@@ -89,5 +99,8 @@ def train(
                 best_auc_model_path = param_name
 
                 torch.save(net.state_dict(), param_name)
+                logger.debug(f"New best model saved at {param_name}")
+    
+    logger.debug(f"Training complete. Best AUC: {best_auc:.4f}")
     
     return best_auc_model_path, loss_history, auc_history

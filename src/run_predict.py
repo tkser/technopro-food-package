@@ -1,5 +1,3 @@
-import logging
-
 from models.PackageModel.predict import predict as predict_PackageModel
 
 

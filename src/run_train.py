@@ -1,11 +1,11 @@
-import logging
-
 from models.PackageModel.train import train as train_PackageModel
+
+from utils.logger import logger
 
 
 def train():
     package_model_path, _, _ = train_PackageModel()
-    logging.debug(f"PackageModel: {package_model_path}")
+    logger.debug(f"PackageModel: {package_model_path}")
 
 
 if __name__ == '__main__':
