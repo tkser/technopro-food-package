@@ -3,6 +3,8 @@ import pandas as pd
 import torch.nn as nn
 import torch.optim as optim
 import torchvision.transforms as transforms
+import albumentations as albu
+import albumentations.pytorch as A
 from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
 
@@ -19,12 +21,18 @@ def train(batch_size = 32, learning_rate = 1e-03, num_epochs = 16, seed = 42):
 
     transform = {
         "train": transforms.Compose([
-            transforms.Resize((128, 128)),
-            transforms.ToTensor(),
+            albu.HorizontalFlip(p=0.5),
+            albu.VerticalFlip(p=0.5),
+            albu.Resize((128, 128)),
+            albu.GaussianBlur(blur_limit=(9, 14), p=0.5),
+            albu.JpegCompression(quality_lower=75, quality_upper=100, p=0.5),
+            A.ToTensorV2(),
+            albu.Normalize()
         ]),
         "val": transforms.Compose([
-            transforms.Resize((128, 128)),
-            transforms.ToTensor(),
+            albu.Resize((128, 128)),
+            A.ToTensorV2(),
+            albu.Normalize()
         ]),
     }
 
