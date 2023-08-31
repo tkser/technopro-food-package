@@ -14,7 +14,7 @@ def remove_macosx_dir(dir_path):
         shutil.rmtree(macosx_dir_path, ignore_errors=True)
 
 
-def main():
+def prepare():
     input_data_dir = os.path.join(os.path.dirname(__file__), './data/input')
 
     train_zip_path = os.path.join(input_data_dir, 'train.zip')
@@ -47,4 +47,4 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    prepare()
