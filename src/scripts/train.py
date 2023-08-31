@@ -83,7 +83,7 @@ def train(
 
             if (phase == 'val') and (epoch_auc > best_auc):
 
-                param_name = os.path.join(model_save_path, f'Epoch{epoch+1}_iou_{epoch_auc:.4f}.pth')
+                param_name = os.path.join(model_save_path, f'Epoch{epoch+1}_auc_{epoch_auc:.4f}.pth')
 
                 best_auc = epoch_auc
                 best_auc_model_path = param_name

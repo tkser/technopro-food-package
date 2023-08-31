@@ -6,23 +6,23 @@ from torch.utils.data import Dataset
 
 
 class PackageDataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform=None, type='train'):
-        if type == 'train':
-            self.data = pd.read_csv(csv_file)
-        else:
-            self.data = pd.read_csv(csv_file, header=None, names=['img_name', 'label'])
+    def __init__(self, image_name_list, label_list, root_dir, transform=None, phase='train'):
+        self.image_name_list = image_name_list
+        self.label_list = label_list
         self.root_dir = root_dir
+        self.phase = phase
         self.transform = transform
 
     def __len__(self):
-        return len(self.data)
+        return len(self.image_name_list)
 
     def __getitem__(self, idx):
-        img_name = os.path.join(self.root_dir, self.data.iloc[idx, 0])
+        img_name = os.path.join(self.root_dir, self.image_name_list[idx])
         image = Image.open(img_name)
-        label = torch.tensor(self.data.iloc[idx, 1], dtype=torch.long, device='cuda:0')
         
         if self.transform:
-            image = self.transform(image)
+            image = self.transform[self.phase](image)
+        
+        label = self.label_list[idx]
         
         return image, label
