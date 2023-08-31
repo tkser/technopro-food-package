@@ -29,8 +29,9 @@
 
 ### Preparation
 ```bash
-signate download --competition-id=1106 --path=./src/data/input
+rye install signate
 rye sync
+signate download --competition-id=1106 --path=./src/data/input
 rye run prepare
 ```
 

@@ -1,4 +1,5 @@
 import os
+import datetime
 
 import torch
 from torch import nn, optim
@@ -26,7 +27,10 @@ def train(
 
     net.to(device)
 
-    logger.debug(f"Starting training on {device}")
+    tz = datetime.timezone(datetime.timedelta(hours=9))
+    now = datetime.datetime.now(tz)
+
+    logger.debug(f"Starting training on {device} at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
     logger.debug(f"Model parameters:")
     for name, param in net.named_parameters():
@@ -93,7 +97,7 @@ def train(
 
             if (phase == 'val') and (epoch_auc > best_auc):
 
-                param_name = os.path.join(model_save_path, f'Epoch{epoch+1}_auc_{epoch_auc:.4f}.pth')
+                param_name = os.path.join(model_save_path, f'mdl_{now.strftime("%Y%m%d%H%M%S")}_epoch_{epoch+1}_auc_{epoch_auc:.4f}.pth')
 
                 best_auc = epoch_auc
                 best_auc_model_path = param_name
