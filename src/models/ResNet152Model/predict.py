@@ -4,9 +4,9 @@ import pandas as pd
 from torch.utils.data import DataLoader
 import albumentations as A
 import albumentations.pytorch as APT
+from torchvision.models import resnet152, ResNet152_Weights
 
-from models.PackageModel.Net import PackageNet
-from models.PackageModel.Dataset import PackageDataset
+from models.ViTL16Model.Dataset import ViTL16Dataset
 
 from scripts.predict import predict as predict_model
 from utils.set_seed import set_seed
@@ -18,20 +18,22 @@ def predict(model_path: str, batch_size = 32, seed = 42):
 
     transform = {
         "train": A.Compose([
-            A.Resize(128, 128),
+            A.Resize(256, 256),
+            A.CenterCrop(224, 224),
             A.Normalize(),
-            APT.ToTensorV2(),
+            APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(128, 128),
+            A.Resize(256, 256),
+            A.CenterCrop(224, 224),
             A.Normalize(),
-            APT.ToTensorV2(),
+            APT.ToTensorV2()
         ]),
     }
 
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
-
+    
     submission_file_name = f"submit_{model_path.split('/')[-1].split('.')[0]}.csv"
     submission_file_path = os.path.join(os.path.dirname(__file__), '../../data/output', submission_file_name)
 
@@ -40,10 +42,11 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     X_test = sample_submission['image_name'].values
     dummy = sample_submission['label'].values
     
-    test_dataset = PackageDataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
+    test_dataset = ViTL16Dataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = PackageNet()
+    model = resnet152(weights=ResNet152_Weights.DEFAULT)
+    model.fc = torch.nn.Linear(in_features=model.fc.in_features, out_features=2)
 
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)
