@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 import torch
 from torch.utils.data import DataLoader
 
@@ -21,7 +23,7 @@ def predict(
 
     pred_list = []
 
-    for images, _ in dataloader:
+    for images, _ in  tqdm(dataloader, desc=f"Prediction"):
 
         images = images.float().to(device)
 

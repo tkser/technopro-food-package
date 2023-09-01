@@ -1,5 +1,6 @@
 import os
 import datetime
+from tqdm import tqdm
 
 import torch
 from torch import nn, optim
@@ -61,7 +62,7 @@ def train(
             pred_list = []
             true_list = []
 
-            for images, labels in dataloaders[phase]:
+            for images, labels in tqdm(dataloaders[phase], desc=f"Epoch {epoch+1}/{num_epochs}"):
 
                 images = images.float().to(device)
                 labels = labels.to(device)
