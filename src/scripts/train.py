@@ -1,4 +1,5 @@
 import os
+import gc
 import datetime
 from tqdm import tqdm
 
@@ -94,7 +95,10 @@ def train(
             loss_history[phase].append(epoch_loss)
             auc_history[phase].append(epoch_auc)
 
-            logger.debug(f'{phase} Loss: {epoch_loss:.4f} AUC: {epoch_auc:.4f}')            
+            logger.debug(f'{phase} Loss: {epoch_loss:.4f} AUC: {epoch_auc:.4f}')   
+
+            if phase == 'train':
+                gc.collect()         
 
             if (phase == 'val') and (epoch_auc > best_auc):
 
