@@ -33,10 +33,10 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
 
-    submission_file_name = f"submit_{model_path.split('/')[-1].split('.')[0]}.csv"
+    submission_file_name = f"submit_{'.'.join(model_path.split('/')[-1].split('.')[0:-1])}.csv"
     submission_file_path = os.path.join(os.path.dirname(__file__), '../../data/output', submission_file_name)
 
-    sample_submission = pd.read_csv(test_file_path, header=None, names=['img_name', 'label'])
+    sample_submission = pd.read_csv(test_file_path, header=None, names=['image_name', 'label'])
 
     X_test = sample_submission['image_name'].values
     dummy = sample_submission['label'].values

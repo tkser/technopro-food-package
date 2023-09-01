@@ -1,6 +1,7 @@
 import os
 import gc
 import datetime
+import numpy as np
 from tqdm import tqdm
 
 import torch
@@ -77,7 +78,7 @@ def train(
 
                     outputs = net(images)
                     loss = loss_fn(outputs, labels)
-                    _, preds = torch.max(outputs, 1)
+                    preds = torch.softmax(outputs, 1)
 
                     if phase == 'train':
                         loss.backward()
@@ -88,13 +89,19 @@ def train(
                     epoch_loss += loss.item() * images.size(0)
 
                     preds = preds.to('cpu').numpy()
-                    pred_list.extend(preds)
+                    pred_list.append(preds)
 
                     labels = labels.to('cpu').numpy()
                     true_list.extend(labels)
+                
+                del images, labels, outputs, preds
+                torch.cuda.empty_cache()
 
             epoch_loss = epoch_loss / len(dataloaders[phase].dataset)
 
+            pred_list = np.concatenate(pred_list, axis=0)
+            pred_list = pred_list[:, 1]
+            
             epoch_auc = roc_auc_score(true_list, pred_list)
 
             loss_history[phase].append(epoch_loss)

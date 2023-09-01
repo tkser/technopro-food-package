@@ -1,3 +1,5 @@
+import gc
+import numpy as np
 from tqdm import tqdm
 
 import torch
@@ -23,16 +25,26 @@ def predict(
 
     pred_list = []
 
-    for images, _ in  tqdm(dataloader, desc=f"Prediction"):
+    with torch.no_grad():
+        for images, _ in  tqdm(dataloader, desc=f"Prediction"):
 
-        images = images.float().to(device)
+            images = images.float().to(device)
 
-        outputs = net(images)
+            outputs = net(images)
 
-        _, preds = torch.max(outputs, 1)
-        preds = preds.to('cpu').numpy()
+            preds = torch.softmax(outputs, dim=1)
+            
+            preds = preds.to('cpu').numpy()
 
-        pred_list.extend(preds)
+            pred_list.append(preds)
+
+            del images, outputs, preds
+            torch.cuda.empty_cache()
+    
+    pred_list = np.concatenate(pred_list, axis=0)
+    pred_list = pred_list[:, 1]
+
+    gc.collect()
     
     logger.debug(f"Finished prediction")
     
