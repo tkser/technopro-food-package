@@ -88,10 +88,10 @@ def train(
                     
                     epoch_loss += loss.item() * images.size(0)
 
-                    preds = preds.to('cpu').numpy()
+                    preds = preds.detach().to('cpu').numpy()
                     pred_list.append(preds)
 
-                    labels = labels.to('cpu').numpy()
+                    labels = labels.detach().to('cpu').numpy()
                     true_list.extend(labels)
                 
                 del images, labels, outputs, preds

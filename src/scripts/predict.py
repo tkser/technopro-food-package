@@ -34,7 +34,7 @@ def predict(
 
             preds = torch.softmax(outputs, dim=1)
             
-            preds = preds.to('cpu').numpy()
+            preds = preds.detach().to('cpu').numpy()
 
             pred_list.append(preds)
 
