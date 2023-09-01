@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import torch.nn as nn
 import torch.optim as optim
+import torch.optim.lr_scheduler as lr_scheduler
 import albumentations as A
 import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
@@ -14,22 +15,23 @@ from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42):
+def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06):
 
     set_seed(seed)
 
     transform = {
         "train": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(256, 256),
+            A.CenterCrop(224, 224),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
-            A.GaussianBlur(blur_limit=(9, 13), p=0.25),
-            A.ImageCompression(quality_lower=75, quality_upper=100, p=0.25),
+            A.GaussianBlur(blur_limit=(9, 11), p=0.3),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(256, 256),
+            A.CenterCrop(224, 224),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -64,9 +66,10 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=500, eta_min=lr_min)
 
     best_model_path, loss_history, auc_history = train_model(
-        model, num_epochs, criterion, optimizer, dataloaders,
+        model, num_epochs, criterion, optimizer, dataloaders, scheduler,
         model_save_path = model_save_path
     )
 

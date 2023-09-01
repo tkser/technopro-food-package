@@ -20,6 +20,7 @@ def train(
         loss_fn: Callable,
         optimizer: optim.Optimizer,
         dataloaders: Dict[str, DataLoader],
+        scheduler: Optional[optim.lr_scheduler._LRScheduler] = None,
         device: Optional[str] = None,
         model_save_path: Optional[str] = None
     ) -> Tuple[Optional[str], Dict[str, list], Dict[str, list]] :
@@ -40,6 +41,7 @@ def train(
         logger.debug(f"{name}: {param.shape}")
     
     logger.debug(f"Optimizer: {optimizer}")
+    logger.debug(f"Scheduler: {scheduler}")
     logger.debug(f"Loss function: {loss_fn}")
 
     best_auc = 0.0
@@ -80,6 +82,8 @@ def train(
                     if phase == 'train':
                         loss.backward()
                         optimizer.step()
+                        if scheduler is not None:
+                            scheduler.step()
                     
                     epoch_loss += loss.item() * images.size(0)
 
