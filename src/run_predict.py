@@ -3,6 +3,7 @@ import argparse
 from models.PackageModel.predict import predict as predict_PackageModel
 from models.ResNet152Model.predict import predict as predict_ResNet152Model
 from models.ViTL16Model.predict import predict as predict_ViTL16Model
+from models.EfficientNetV2Model.predict import predict as predict_EfficientNetV2Model
 
 from utils.logger import logger
 
@@ -14,6 +15,8 @@ def predict(model_name: str, model_path: str, batch_size: int, seed: int):
         submission_file_path = predict_ResNet152Model(model_path, batch_size, seed)
     elif model_name == "vitl16":
         submission_file_path = predict_ViTL16Model(model_path, batch_size, seed)
+    elif model_name == "efficientnetv2":
+        submission_file_path = predict_EfficientNetV2Model(model_path, batch_size, seed)
     else:
         raise ValueError(f"Unknown model name: {model_name}")
 

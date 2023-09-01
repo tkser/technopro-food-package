@@ -42,5 +42,5 @@ rye run predict
 
 ### Submit
 ```bash
-signate submit --competition-id=1106 --file=./src/data/output/***.csv --note="***"
+signate submit --competition-id=1106 ./src/data/output/***.csv --note="***"
 ```
