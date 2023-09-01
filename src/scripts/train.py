@@ -28,6 +28,7 @@ def train(
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     net.to(device)
+    logger.debug(f"Using device: {device}({torch.cuda.get_device_name()})")
 
     tz = datetime.timezone(datetime.timedelta(hours=9))
     now = datetime.datetime.now(tz)
@@ -63,7 +64,7 @@ def train(
             pred_list = []
             true_list = []
 
-            for images, labels in tqdm(dataloaders[phase], desc=f"Epoch {epoch+1}/{num_epochs}"):
+            for images, labels in tqdm(dataloaders[phase], desc=f"Epoch {epoch+1}/{epochs}"):
 
                 images = images.float().to(device)
                 labels = labels.to(device)
@@ -102,7 +103,7 @@ def train(
 
             if (phase == 'val') and (epoch_auc > best_auc):
 
-                param_name = os.path.join(model_save_path, f'mdl_{now.strftime("%Y%m%d%H%M%S")}_epoch_{epoch+1}_auc_{epoch_auc:.4f}.pth')
+                param_name = os.path.join(model_save_path, f'{net.__class__.__name__.lower()}_{now.strftime("%Y%m%d%H%M%S")}_epoch_{epoch+1}_auc_{epoch_auc:.4f}.pth')
 
                 best_auc = epoch_auc
                 best_auc_model_path = param_name

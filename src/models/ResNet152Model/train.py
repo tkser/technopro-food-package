@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 import albumentations as A
 import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
-from torchvision.models import resnet50
+from torchvision.models import resnet152, ResNet152_Weights
 from sklearn.model_selection import train_test_split
 
 from models.ResNet152Model.Dataset import ResNet152Dataset
@@ -62,7 +62,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42):
         "val": val_loader
     }
 
-    model = resnet50()
+    model = resnet152(weights=ResNet152_Weights.DEFAULT)
     model.fc = nn.Linear(model.fc.in_features, 2)
 
     criterion = nn.CrossEntropyLoss()
