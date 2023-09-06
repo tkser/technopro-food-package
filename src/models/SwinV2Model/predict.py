@@ -1,8 +1,8 @@
 import os
+import re
 import timm
 import torch
 import pandas as pd
-from torch import nn
 from torch.utils.data import DataLoader
 import albumentations as A
 import albumentations.pytorch as APT
@@ -19,12 +19,12 @@ def predict(model_path: str, batch_size = 32, seed = 42):
 
     transform = {
         "train": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(384, 384),
             A.Normalize(),
             APT.ToTensorV2(),
         ]),
         "val": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(384, 384),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -32,8 +32,10 @@ def predict(model_path: str, batch_size = 32, seed = 42):
 
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
-
-    submission_file_name = f"submit_{'.'.join(model_path.split('/')[-1].split('.')[0:-1])}.csv"
+    
+    model_path = model_path.replace('\\', '/')
+    submit_name = '.'.join(model_path.split("/")[-1].split('.')[0:-1])
+    submission_file_name = f"submit_{submit_name}.csv"
     submission_file_path = os.path.join(os.path.dirname(__file__), '../../data/output', submission_file_name)
 
     sample_submission = pd.read_csv(test_file_path, header=None, names=['image_name', 'label'])
