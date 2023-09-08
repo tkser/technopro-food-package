@@ -2,20 +2,20 @@ import os
 import timm
 import pandas as pd
 import torch.nn as nn
-import torch.optim as optim
 import torch.optim.lr_scheduler as lr_scheduler
 import albumentations as A
 import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
+import torch.optim as optim
 from sklearn.model_selection import train_test_split
 
 from models.SwinV2Model.Dataset import SwinV2Dataset
 
-from scripts.train import train as train_model
+from scripts.train_rs import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06):
+def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "swinv2_large_window12to24_192to384"):
 
     set_seed(seed)
 
@@ -59,10 +59,10 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = timm.create_model('swinv2_large_window12to24_192to384', pretrained=True, num_classes=2)
+    model = timm.create_model(model_name, pretrained=True, num_classes=2)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=500, eta_min=lr_min)
 
     best_model_path, loss_history, auc_history = train_model(
