@@ -13,7 +13,7 @@ from scripts.predict import predict as predict_model
 from utils.set_seed import set_seed
 
 
-def predict(model_path: str, batch_size = 32, seed = 42):
+def predict(model_path: str, batch_size = 32, seed = 42, model_name = "swinv2_large_window12to24_192to384"):
 
     set_seed(seed)
 
@@ -46,7 +46,7 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     test_dataset = SwinV2Dataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = timm.create_model('swinv2_large_window12to24_192to384', pretrained=True, num_classes=2)
+    model = timm.create_model(model_name, pretrained=True, num_classes=2)
 
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)
