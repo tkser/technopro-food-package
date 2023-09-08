@@ -3,6 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 import torch
+import ttach
 from torch.utils.data import DataLoader
 
 from utils.logger import logger
@@ -13,13 +14,19 @@ from typing import Optional
 def predict(
         net: torch.nn.Module,
         dataloader: DataLoader,
-        device: Optional[str] = None
+        device: Optional[str] = None,
+        use_tta: Optional[bool] = False,
+        tta_transforms: Optional[ttach.Compose] = None
     ) -> list :
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
     net.to(device)
+    net.eval()
+
+    if use_tta:
+        net = ttach.ClassificationTTAWrapper(net, tta_transforms, merge_mode='mean')
 
     logger.debug(f"Starting prediction on {device}")
 
