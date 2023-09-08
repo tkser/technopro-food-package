@@ -20,6 +20,8 @@ def predict(model_name: str, model_path: str, batch_size: int, seed: int):
         submission_file_path = predict_EfficientNetV2Model(model_path, batch_size, seed)
     elif model_name == "swinv2":
         submission_file_path = predict_SwinV2Model(model_path, batch_size, seed)
+    elif model_name == "swinv1":
+        submission_file_path = predict_SwinV2Model(model_path, batch_size, seed, model_name="swin_large_patch4_window12_384")
     else:
         raise ValueError(f"Unknown model name: {model_name}")
 

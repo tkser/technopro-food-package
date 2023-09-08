@@ -23,6 +23,8 @@ def train(model_name: str, batch_size: int, epochs: int, lr: float, seed: int, h
         model_path, loss_history, auc_history = train_EfficientNetV2Model(batch_size, epochs, lr, seed)
     elif model_name == "swinv2":
         model_path, loss_history, auc_history = train_SwinV2Model(batch_size, epochs, lr, seed)
+    elif model_name == "swinv1":
+        model_path, loss_history, auc_history = train_SwinV2Model(batch_size, epochs, lr, seed, model_name="swin_large_patch4_window12_384")
     else:
         raise ValueError(f"Unknown model name: {model_name}")
     
