@@ -2,6 +2,7 @@ import os
 import timm
 import pandas as pd
 import torch.nn as nn
+from ranger21 import Ranger21
 import torch.optim.lr_scheduler as lr_scheduler
 import albumentations as A
 import albumentations.pytorch as APT
@@ -11,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 from models.SwinV2Model.Dataset import SwinV2Dataset
 
-from scripts.train_rs import train as train_model
+from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
@@ -59,13 +60,19 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = timm.create_model(model_name, pretrained=True, num_classes=2)
+    model = timm.create_model(model_name, pretrained=True)
+    for param in model.parameters():
+        param.requires_grad = False
+    
+    model.head.fc = nn.Linear(1536, 2, bias=True)
+    for param in model.head.fc.parameters():
+        param.requires_grad = True
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=500, eta_min=lr_min)
 
-    best_model_path, loss_history, auc_history = train_model(
+    best_model_path, loss_history, auc_history, _, _ = train_model(
         model, num_epochs, criterion, optimizer, dataloaders, scheduler,
         model_save_path = model_save_path
     )

@@ -16,6 +16,7 @@ dependencies = [
     "timm>=0.9.7",
     "pytorch_optimizer>=2.11.2",
     "ttach>=0.0.3",
+    "ranger21 @ git+https://github.com/lessw2020/Ranger21",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
