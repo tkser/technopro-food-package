@@ -24,7 +24,7 @@ def train(
         scheduler: Optional[optim.lr_scheduler._LRScheduler] = None,
         device: Optional[str] = None,
         model_save_path: Optional[str] = None
-    ) -> Tuple[Optional[str], Dict[str, list], Dict[str, list]] :
+    ) -> Tuple[Optional[str], Dict[str, list], Dict[str, list], Optional[np.ndarray], Optional[np.ndarray]]:
 
     if device is None:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -47,6 +47,8 @@ def train(
 
     best_auc = 0.0
     best_auc_model_path = None
+    best_auc_pred_list = None
+    best_auc_true_list = None
 
     loss_history = {'train': [], 'val': []}
     auc_history = {'train': [], 'val': []}
@@ -118,10 +120,12 @@ def train(
 
                 best_auc = epoch_auc
                 best_auc_model_path = param_name
+                best_auc_pred_list = pred_list
+                best_auc_true_list = true_list
 
                 torch.save(net.state_dict(), param_name)
                 logger.debug(f"New best model saved at {param_name}")
     
     logger.debug(f"Training complete. Best AUC: {best_auc:.4f}")
     
-    return best_auc_model_path, loss_history, auc_history
+    return best_auc_model_path, loss_history, auc_history, best_auc_pred_list, best_auc_true_list
