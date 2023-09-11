@@ -16,13 +16,13 @@ from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "swinv2_large_window12to24_192to384"):
+def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "swinv2_large_window12to24_192to384", image_size = 384, pretrained = True, use_flozen = True):
 
     set_seed(seed)
 
     transform = {
         "train": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(image_size, image_size),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
             A.GaussianBlur(blur_limit=(9, 11), p=0.3),
@@ -30,7 +30,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
             APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(image_size, image_size),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -60,13 +60,14 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = timm.create_model(model_name, pretrained=True)
-    for param in model.parameters():
-        param.requires_grad = False
-    
-    model.head.fc = nn.Linear(1536, 2, bias=True)
-    for param in model.head.fc.parameters():
-        param.requires_grad = True
+    model = timm.create_model(model_name, pretrained=pretrained, num_classes=2)
+    if pretrained and use_flozen:
+        for param in model.parameters():
+            param.requires_grad = False
+        
+        model.head.fc = nn.Linear(model.head.fc.in_features, 2, bias=True)
+        for param in model.head.fc.parameters():
+            param.requires_grad = True
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
