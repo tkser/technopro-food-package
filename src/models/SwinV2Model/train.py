@@ -22,7 +22,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
 
     transform = {
         "train": A.Compose([
-            A.Resize(image_size, image_size),
+            A.RandomResizedCrop(image_size, image_size, scale=(0.9, 1.0), ratio=(0.8, 1.2)),
             A.HorizontalFlip(p=0.5),
             A.VerticalFlip(p=0.5),
             A.GaussianBlur(blur_limit=(9, 11), p=0.3),
