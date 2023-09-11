@@ -5,6 +5,7 @@ from models.ResNet152Model.predict import predict as predict_ResNet152Model
 from models.ViTL16Model.predict import predict as predict_ViTL16Model
 from models.EfficientNetV2Model.predict import predict as predict_EfficientNetV2Model
 from models.SwinV2Model.predict import predict as predict_SwinV2Model
+from models.ConvNextV2.predict import predict as predict_ConvNextV2Model
 
 from utils.logger import logger
 
@@ -22,6 +23,8 @@ def predict(model_name: str, model_path: str, batch_size: int, seed: int, use_tt
         submission_file_path = predict_SwinV2Model(model_path, batch_size, seed, use_tta=use_tta)
     elif model_name == "swinv1":
         submission_file_path = predict_SwinV2Model(model_path, batch_size, seed, model_name="swin_large_patch4_window12_384", use_tta=use_tta)
+    elif model_name == "convnextv2":
+        submission_file_path = predict_ConvNextV2Model(model_path, batch_size, seed)
     else:
         raise ValueError(f"Unknown model name: {model_name}")
 

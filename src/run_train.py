@@ -8,6 +8,7 @@ from models.ResNet152Model.train import train as train_ResNet152Model
 from models.ViTL16Model.train import train as train_ViTL16Model
 from models.EfficientNetV2Model.train import train as train_EfficientNetV2Model
 from models.SwinV2Model.train import train as train_SwinV2Model
+from models.ConvNextV2.train import train as train_ConvNextV2Model
 
 from utils.logger import logger
 
@@ -25,6 +26,8 @@ def train(model_name: str, batch_size: int, epochs: int, lr: float, seed: int, h
         model_path, loss_history, auc_history = train_SwinV2Model(batch_size, epochs, lr, seed)
     elif model_name == "swinv1":
         model_path, loss_history, auc_history = train_SwinV2Model(batch_size, epochs, lr, seed, model_name="swin_large_patch4_window12_384")
+    elif model_name == "convnextv2":
+        model_path, loss_history, auc_history = train_ConvNextV2Model(batch_size, epochs, lr, seed)
     else:
         raise ValueError(f"Unknown model name: {model_name}")
     
