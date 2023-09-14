@@ -19,12 +19,12 @@ def predict(model_path: str, batch_size = 32, seed = 42):
 
     transform = {
         "train": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(512, 512),
             A.Normalize(),
             APT.ToTensorV2(),
         ]),
         "val": A.Compose([
-            A.Resize(224, 224),
+            A.Resize(512, 512),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -32,6 +32,8 @@ def predict(model_path: str, batch_size = 32, seed = 42):
 
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
+
+    model_path = model_path.replace('\\', '/')
 
     submission_file_name = f"submit_{'.'.join(model_path.split('/')[-1].split('.')[0:-1])}.csv"
     submission_file_path = os.path.join(os.path.dirname(__file__), '../../data/output', submission_file_name)
@@ -44,7 +46,7 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     test_dataset = ViTL16Dataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = vit_l_16(weights=ViT_L_16_Weights.DEFAULT)
+    model = vit_l_16(weights=ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1)
     model.heads[0] = nn.Linear(in_features=model.heads[0].in_features, out_features=2, bias=True)
 
     trained_params = torch.load(model_path)
