@@ -3,6 +3,7 @@ import argparse
 from models.PackageModel.predict import predict as predict_PackageModel
 from models.ResNet152Model.predict import predict as predict_ResNet152Model
 from models.ViTL16Model.predict import predict as predict_ViTL16Model
+from models.ViTH14Model.predict import predict as predict_ViTH14Model
 from models.EfficientNetV2Model.predict import predict as predict_EfficientNetV2Model
 from models.SwinV2Model.predict import predict as predict_SwinV2Model
 from models.ConvNextV2.predict import predict as predict_ConvNextV2Model
@@ -17,6 +18,8 @@ def predict(model_name: str, model_path: str, batch_size: int, seed: int, use_tt
         submission_file_path = predict_ResNet152Model(model_path, batch_size, seed)
     elif model_name == "vitl16":
         submission_file_path = predict_ViTL16Model(model_path, batch_size, seed)
+    elif model_name == "vith14":
+        submission_file_path = predict_ViTH14Model(model_path, batch_size, seed)
     elif model_name == "efficientnetv2":
         submission_file_path = predict_EfficientNetV2Model(model_path, batch_size, seed)
     elif model_name == "swinv2":

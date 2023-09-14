@@ -6,6 +6,7 @@ from typing import Optional
 from models.PackageModel.train import train as train_PackageModel
 from models.ResNet152Model.train import train as train_ResNet152Model
 from models.ViTL16Model.train import train as train_ViTL16Model
+from models.ViTH14Model.train import train as train_ViTH14Model
 from models.EfficientNetV2Model.train import train as train_EfficientNetV2Model
 from models.SwinV2Model.train import train as train_SwinV2Model
 from models.ConvNextV2.train import train as train_ConvNextV2Model
@@ -20,6 +21,8 @@ def train(model_name: str, batch_size: int, epochs: int, lr: float, seed: int, h
         model_path, loss_history, auc_history = train_ResNet152Model(batch_size, epochs, lr, seed)
     elif model_name == "vitl16":
         model_path, loss_history, auc_history = train_ViTL16Model(batch_size, epochs, lr, seed)
+    elif model_name == "vith14":
+        model_path, loss_history, auc_history = train_ViTH14Model(batch_size, epochs, lr, seed)
     elif model_name == "efficientnetv2":
         model_path, loss_history, auc_history = train_EfficientNetV2Model(batch_size, epochs, lr, seed)
     elif model_name == "swinv2":
