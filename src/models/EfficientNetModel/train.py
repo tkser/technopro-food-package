@@ -96,8 +96,6 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
             param.requires_grad = False
     model.classifier[-1] = nn.Linear(in_features=model.classifier[-1].in_features, out_features=2)
     if flozen:
-        for param in model.features[0].parameters():
-            param.requires_grad = True
         for param in model.classifier.parameters():
             param.requires_grad = True
 
