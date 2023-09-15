@@ -37,6 +37,7 @@ def train(
 
     logger.debug(f"Starting training on {device} at {now.strftime('%Y-%m-%d %H:%M:%S')}")
 
+    logger.debug(f"Model: {net.__class__.__name__}")
     logger.debug(f"Model parameters:")
     for name, param in net.named_parameters():
         logger.debug(f"{name}: {param.shape}")
