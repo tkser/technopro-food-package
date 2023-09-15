@@ -29,6 +29,8 @@ def predict(
         net = ttach.ClassificationTTAWrapper(net, tta_transforms, merge_mode='mean')
 
     logger.debug(f"Starting prediction on {device}")
+    logger.debug(f"Using TTA: {use_tta}")
+    logger.debug(f"TTA Transforms: {tta_transforms}")
 
     pred_list = []
 

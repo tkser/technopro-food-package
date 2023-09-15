@@ -1,5 +1,6 @@
 import os
 import torch
+import ttach
 import pandas as pd
 from torch import nn
 from torch.utils.data import DataLoader
@@ -13,7 +14,7 @@ from scripts.predict import predict as predict_model
 from utils.set_seed import set_seed
 
 
-def predict(model_path: str, batch_size = 32, seed = 42):
+def predict(model_path: str, batch_size = 32, seed = 42, use_tta = False):
 
     set_seed(seed)
 
@@ -29,6 +30,12 @@ def predict(model_path: str, batch_size = 32, seed = 42):
             APT.ToTensorV2()
         ]),
     }
+
+    tta_transform = ttach.Compose([
+        ttach.HorizontalFlip(),
+        ttach.VerticalFlip(),
+        ttach.Rotate90(angles=[90, 270]),
+    ])
 
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
@@ -52,7 +59,7 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)
 
-    y_pred = predict_model(model, test_loader)
+    y_pred = predict_model(model, test_loader, use_tta=use_tta, tta_transforms=tta_transform)
 
     sample_submission["label"] = y_pred
     sample_submission.to_csv(submission_file_path, index=False, header=False)
