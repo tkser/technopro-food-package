@@ -33,6 +33,8 @@ def predict(model_path: str, batch_size = 32, seed = 42):
     test_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/sample_submit.csv')
     test_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/test')
 
+    model_path = model_path.replace('\\', '/')
+
     submission_file_name = f"submit_{'.'.join(model_path.split('/')[-1].split('.')[0:-1])}.csv"
     submission_file_path = os.path.join(os.path.dirname(__file__), '../../data/output', submission_file_name)
 

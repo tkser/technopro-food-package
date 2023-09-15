@@ -15,22 +15,21 @@ from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06):
+def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, flozen = False):
 
     set_seed(seed)
 
     transform = {
         "train": A.Compose([
-            A.Resize(256, 256),
-            A.CenterCrop(224, 224),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.GaussianBlur(blur_limit=(9, 11), p=0.3),
+            A.Resize(224, 224),
+            A.HorizontalFlip(p=0.3),
+            A.VerticalFlip(p=0.3),
+            A.GaussianBlur(blur_limit=(3, 3), p=0.05),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(256, 256),
+            A.Resize(224, 224),
             A.CenterCrop(224, 224),
             A.Normalize(),
             APT.ToTensorV2()
@@ -62,13 +61,19 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
     }
 
     model = efficientnet_v2_l(weights=EfficientNet_V2_L_Weights.DEFAULT)
+    if flozen:
+        for param in model.parameters():
+            param.requires_grad = False
     model.classifier.append(nn.Linear(1000, 2))
+    if flozen:
+        for param in model.classifier.parameters():
+            param.requires_grad = True
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
     scheduler = lr_scheduler.CosineAnnealingLR(optimizer, T_max=500, eta_min=lr_min)
 
-    best_model_path, loss_history, auc_history = train_model(
+    best_model_path, loss_history, auc_history, _, _ = train_model(
         model, num_epochs, criterion, optimizer, dataloaders, scheduler,
         model_save_path = model_save_path
     )
