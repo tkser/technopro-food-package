@@ -54,7 +54,9 @@ def predict(model_path: str, batch_size = 32, seed = 42, use_tta = False):
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     model = vit_l_16(weights=ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1)
-    model.heads[0] = nn.Linear(in_features=model.heads[0].in_features, out_features=2, bias=True)
+    model.heads = nn.Sequential(
+        nn.Linear(in_features=model.hidden_dim, out_features=2, bias=True),
+    )
 
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)

@@ -63,9 +63,11 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
     if flozen:
         for param in model.parameters():
             param.requires_grad = False
-    model.heads[0] = nn.Linear(in_features=model.heads[0].in_features, out_features=2, bias=True)
+    model.heads = nn.Sequential(
+        nn.Linear(in_features=model.hidden_dim, out_features=2, bias=True),
+    )
     if flozen:
-        for param in model.heads[0].parameters():
+        for param in model.heads.parameters():
             param.requires_grad = True
 
     criterion = nn.CrossEntropyLoss()
