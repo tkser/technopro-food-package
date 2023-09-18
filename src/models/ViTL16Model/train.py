@@ -18,7 +18,7 @@ from utils.set_seed import set_seed
 def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, flozen = False):
 
     set_seed(seed)
-
+    
     transform = {
         "train": A.Compose([
             A.Resize(512, 512),
@@ -76,6 +76,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
 
     best_model_path, loss_history, auc_history, _, _ = train_model(
         model, num_epochs, criterion, optimizer, dataloaders, scheduler,
+        mixup_alpha = 0.4,
         model_save_path = model_save_path
     )
 

@@ -14,6 +14,8 @@ from utils.logger import logger
 
 from typing import Dict, Tuple, Callable, Optional
 
+from utils.mixup import mixup_data
+
 
 def train(
         net: nn.Module,
@@ -23,6 +25,7 @@ def train(
         dataloaders: Dict[str, DataLoader],
         scheduler: Optional[optim.lr_scheduler._LRScheduler] = None,
         device: Optional[str] = None,
+        mixup_alpha: Optional[float] = 0.0,
         model_save_path: Optional[str] = None
     ) -> Tuple[Optional[str], Dict[str, list], Dict[str, list], Optional[np.ndarray], Optional[np.ndarray]]:
 
@@ -45,6 +48,7 @@ def train(
     logger.debug(f"Optimizer: {optimizer}")
     logger.debug(f"Scheduler: {scheduler}")
     logger.debug(f"Loss function: {loss_fn}")
+    logger.debug(f"Mixup alpha: {mixup_alpha}")
 
     best_auc = 0.0
     best_auc_model_path = None
@@ -74,6 +78,9 @@ def train(
 
                 images = images.float().to(device)
                 labels = labels.to(device)
+
+                if phase == 'train':
+                    images, labels, _, _ = mixup_data(images, labels, alpha=mixup_alpha, device=device)
 
                 optimizer.zero_grad()
 
