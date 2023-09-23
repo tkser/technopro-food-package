@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 import albumentations as A
 import albumentations.pytorch as APT
 
-from models.ViTL16Model.Dataset import ViTL16Dataset
+from models.Eva02Model.Dataset import Eva02Dataset
 
 from scripts.predict import predict as predict_model
 from utils.set_seed import set_seed
@@ -20,12 +20,12 @@ def predict(model_path: str, batch_size = 32, seed = 42, use_tta = False):
 
     transform = {
         "train": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(448, 448),
             A.Normalize(),
             APT.ToTensorV2(),
         ]),
         "val": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(448, 448),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -53,7 +53,10 @@ def predict(model_path: str, batch_size = 32, seed = 42, use_tta = False):
     test_dataset = ViTL16Dataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = timm.create_model('vit_large_patch16_384.augreg_in21k_ft_in1k', pretrained=True, num_classes=2)
+    model = vit_l_16(weights=ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1)
+    model.heads = nn.Sequential(
+        nn.Linear(in_features=model.hidden_dim, out_features=2, bias=True),
+    )
 
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)
