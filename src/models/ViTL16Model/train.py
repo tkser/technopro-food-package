@@ -22,7 +22,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
     
     transform = {
         "train": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(512, 512),
             A.HorizontalFlip(p=0.3),
             A.VerticalFlip(p=0.3),
             A.GaussianBlur(blur_limit=(3, 3), p=0.05),
@@ -31,7 +31,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
             APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(512, 512),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -61,14 +61,15 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = timm.create_model('vit_large_patch16_384.augreg_in21k_ft_in1k', pretrained=True, num_classes=2)
+    model = vit_l_16(weights=ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1)
+    model.heads.head = nn.Linear(in_features=1024, out_features=2, bias=True)
 
     if flozen:
         layer_count = 0
         for param in model.parameters():
             param.requires_grad = False
             layer_count += 1
-            if layer_count == 100:
+            if layer_count == 150:
                 break
 
     criterion = nn.CrossEntropyLoss()
