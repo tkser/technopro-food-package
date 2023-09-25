@@ -23,9 +23,10 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
     transform = {
         "train": A.Compose([
             A.RandomResizedCrop(image_size, image_size, scale=(0.9, 1.0), ratio=(0.8, 1.2)),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.GaussianBlur(blur_limit=(9, 11), p=0.3),
+            A.HorizontalFlip(p=0.35),
+            A.VerticalFlip(p=0.35),
+            A.GaussianBlur(blur_limit=(9, 11), p=0.1),
+            A.Cutout(num_holes=8, max_h_size=32, max_w_size=32, p=0.3),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -62,12 +63,12 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
 
     model = timm.create_model(model_name, pretrained=pretrained, num_classes=2)
     if pretrained and use_flozen:
+        layer_count = 0
         for param in model.parameters():
             param.requires_grad = False
-        
-        model.head.fc = nn.Linear(model.head.fc.in_features, 2, bias=True)
-        for param in model.head.fc.parameters():
-            param.requires_grad = True
+            layer_count += 1
+            if layer_count == 100:
+                break
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
