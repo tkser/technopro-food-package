@@ -67,7 +67,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         for param in model.parameters():
             param.requires_grad = False
             layer_count += 1
-            if layer_count == 100:
+            if layer_count == 250:
                 break
 
     criterion = nn.CrossEntropyLoss()
