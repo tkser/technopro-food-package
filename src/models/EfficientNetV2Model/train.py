@@ -60,14 +60,15 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = efficientnet_v2_l(weights=EfficientNet_V2_L_Weights.DEFAULT)
+    model = efficientnet_v2_l(weights=EfficientNet_V2_L_Weights.IMAGENET1K_V1)
+    model.classifier[1] = nn.Linear(in_features=1280, out_features=2, bias=True)
     if flozen:
+        layer_count = 0
         for param in model.parameters():
             param.requires_grad = False
-    model.classifier.append(nn.Linear(1000, 2))
-    if flozen:
-        for param in model.classifier.parameters():
-            param.requires_grad = True
+            layer_count += 1
+            if layer_count >= 500:
+                break
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
