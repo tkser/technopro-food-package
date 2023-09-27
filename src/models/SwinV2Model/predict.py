@@ -7,6 +7,7 @@ import pandas as pd
 from torch.utils.data import DataLoader
 import albumentations as A
 import albumentations.pytorch as APT
+from torchvision.models.swin_transformer import swin_v2_b, Swin_V2_B_Weights
 
 from models.SwinV2Model.Dataset import SwinV2Dataset
 

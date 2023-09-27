@@ -7,6 +7,7 @@ import torch.optim.lr_scheduler as lr_scheduler
 import albumentations as A
 import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
+from torchvision.models.swin_transformer import swin_v2_b, Swin_V2_B_Weights
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
 
@@ -67,7 +68,7 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         for param in model.parameters():
             param.requires_grad = False
             layer_count += 1
-            if layer_count == 250:
+            if layer_count == 200:
                 break
 
     criterion = nn.CrossEntropyLoss()
