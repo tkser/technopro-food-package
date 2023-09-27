@@ -38,6 +38,7 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
             A.HorizontalFlip(p=0.3),
             A.VerticalFlip(p=0.3),
             A.GaussianBlur(blur_limit=(3, 3), p=0.05),
+            A.Cutout(num_holes=8, max_h_size=32, max_w_size=32, p=0.3),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -89,14 +90,15 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
         }
 
         model = vit_l_16(weights=ViT_L_16_Weights.IMAGENET1K_SWAG_E2E_V1)
-        if pretrained and use_flozen:
+        model.heads.head = nn.Linear(in_features=1024, out_features=2, bias=True)
+
+        if use_flozen:
+            layer_count = 0
             for param in model.parameters():
                 param.requires_grad = False
-            
-        model.heads[0] = nn.Linear(in_features=model.heads[0].in_features, out_features=2, bias=True)
-        if pretrained and use_flozen:
-            for param in model.heads[0].parameters():
-                param.requires_grad = True
+                layer_count += 1
+                if layer_count == 100:
+                    break
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-6)
