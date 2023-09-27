@@ -1,12 +1,14 @@
 import os
 import re
 import timm
+import torch.nn as nn
 import torch
 import ttach
 import pandas as pd
 from torch.utils.data import DataLoader
 import albumentations as A
 import albumentations.pytorch as APT
+from torchvision.models import convnext_large, ConvNeXt_Large_Weights
 
 from models.ConvNextV2.Dataset import ConvNextV2Dataset
 
@@ -20,12 +22,12 @@ def predict(model_path: str, batch_size = 32, seed = 42, model_name = "convnextv
 
     transform = {
         "train": A.Compose([
-            A.Resize(192, 192),
+            A.Resize(232, 232),
             A.Normalize(),
             APT.ToTensorV2(),
         ]),
         "val": A.Compose([
-            A.Resize(192, 192),
+            A.Resize(232, 232),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -52,7 +54,8 @@ def predict(model_path: str, batch_size = 32, seed = 42, model_name = "convnextv
     test_dataset = ConvNextV2Dataset(X_test, dummy, root_dir=test_img_fd_path, transform=transform, phase='val')
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    model = timm.create_model(model_name, pretrained=True, num_classes=2)
+    model = convnext_large(weights=ConvNeXt_Large_Weights.IMAGENET1K_V1)
+    model.classifier[2] = nn.Linear(in_features=1536, out_features=2, bias=True)
 
     trained_params = torch.load(model_path)
     model.load_state_dict(trained_params)

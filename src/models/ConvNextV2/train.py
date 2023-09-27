@@ -9,6 +9,7 @@ import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
+from torchvision.models import convnext_large, ConvNeXt_Large_Weights
 
 from models.ConvNextV2.Dataset import ConvNextV2Dataset
 
@@ -16,16 +17,17 @@ from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "convnextv2_huge", image_size = 192, pretrained = True, use_flozen = True):
+def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "convnextv2_huge", image_size = 232, pretrained = True, use_flozen = True):
 
     set_seed(seed)
 
     transform = {
         "train": A.Compose([
             A.Resize(image_size, image_size),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.GaussianBlur(blur_limit=(9, 13), p=0.05),
+            A.HorizontalFlip(p=0.3),
+            A.VerticalFlip(p=0.3),
+            A.GaussianBlur(blur_limit=(3, 3), p=0.05),
+            A.Cutout(num_holes=8, max_h_size=32, max_w_size=32, p=0.3),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -60,14 +62,16 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
         "val": val_loader
     }
 
-    model = timm.create_model(model_name, pretrained=pretrained, num_classes=2)
-    if pretrained and use_flozen:
+    model = convnext_large(weights=ConvNeXt_Large_Weights.IMAGENET1K_V1)
+    model.classifier[2] = nn.Linear(in_features=1536, out_features=2, bias=True)
+
+    if use_flozen:
+        layer_count = 0
         for param in model.parameters():
             param.requires_grad = False
-        
-        model.head.fc = nn.Linear(model.head.fc.in_features, 2, bias=True)
-        for param in model.head.fc.parameters():
-            param.requires_grad = True
+            layer_count += 1
+            if layer_count >= 100:
+                break
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
