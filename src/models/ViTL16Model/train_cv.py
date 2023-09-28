@@ -67,7 +67,8 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
     loss_histories = []
     auc_histories = []
 
-    for fold, (train_index, val_index) in enumerate(kf.split(image_name_list, label_list)):
+    #反転
+    for fold, (val_index, train_index) in enumerate(kf.split(image_name_list, label_list)):
 
         if fold < start_fold:
             continue
