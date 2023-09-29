@@ -60,13 +60,14 @@ def train(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr
     }
 
     model = regnet_y_128gf(weights=RegNet_Y_128GF_Weights.IMAGENET1K_SWAG_E2E_V1)
+    model.fc = nn.Linear(in_features=7392, out_features=2, bias=True)
     if flozen:
+        layer_count = 0
         for param in model.parameters():
             param.requires_grad = False
-    model.fc = nn.Linear(in_features=model.fc.in_features, out_features=2, bias=True)
-    if flozen:
-        for param in model.fc.parameters():
-            param.requires_grad = True
+            layer_count += 1
+            if layer_count >= 150:
+                break
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=learning_rate)

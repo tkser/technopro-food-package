@@ -1,6 +1,5 @@
 import os
 from sklearn.metrics import roc_auc_score
-import timm
 import numpy as np
 import pandas as pd
 import torch.nn as nn
@@ -8,31 +7,43 @@ import torch.optim.lr_scheduler as lr_scheduler
 import albumentations as A
 import albumentations.pytorch as APT
 from torch.utils.data import DataLoader
+from torchvision.models import vit_h_14, ViT_H_14_Weights
 import torch.optim as optim
 from sklearn.model_selection import StratifiedKFold
 
-from models.SwinV2Model.Dataset import SwinV2Dataset
+from models.ViTH14Model.Dataset import ViTH14Dataset
 
 from utils.logger import logger
 from scripts.train import train as train_model
 from utils.set_seed import set_seed
 
 
-def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, model_name = "swinv2_large_window12to24_192to384", n_splits = 5, pretrained = True, use_flozen = True, start_fold = 0):
+def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42, lr_min = 1e-06, n_splits = 5, pretrained = True, use_flozen = True, start_fold = 0):
 
     set_seed(seed)
 
+    logger.debug(f"Batch size: {batch_size}")
+    logger.debug(f"Learning rate: {learning_rate}")
+    logger.debug(f"Number of epochs: {num_epochs}")
+    logger.debug(f"Seed: {seed}")
+    logger.debug(f"Minimum learning rate: {lr_min}")
+    logger.debug(f"Number of splits: {n_splits}")
+    logger.debug(f"Pretrained: {pretrained}")
+    logger.debug(f"Use flozen: {use_flozen}")
+    logger.debug(f"Start fold: {start_fold}")
+
     transform = {
         "train": A.Compose([
-            A.Resize(384, 384),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.GaussianBlur(blur_limit=(9, 11), p=0.3),
+            A.Resize(518 , 518 ),
+            A.HorizontalFlip(p=0.3),
+            A.VerticalFlip(p=0.3),
+            A.GaussianBlur(blur_limit=(3, 3), p=0.05),
+            A.Cutout(num_holes=8, max_h_size=32, max_w_size=32, p=0.3),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
         "val": A.Compose([
-            A.Resize(384, 384),
+            A.Resize(518 , 518 ),
             A.Normalize(),
             APT.ToTensorV2()
         ]),
@@ -40,7 +51,7 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
 
     train_file_path = os.path.join(os.path.dirname(__file__), '../../data/input/train.csv')
     train_img_fd_path = os.path.join(os.path.dirname(__file__), '../../data/input/images/train')
-    model_save_path = os.path.join(os.path.dirname(__file__), '../../data/models/SwinV2Model_cv')
+    model_save_path = os.path.join(os.path.dirname(__file__), '../../data/models/ViTH14Model_cv')
 
     if not os.path.exists(model_save_path):
         os.makedirs(model_save_path)
@@ -67,8 +78,8 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
         X_train, X_val = image_name_list[train_index], image_name_list[val_index]
         y_train, y_val = label_list[train_index], label_list[val_index]
 
-        train_dataset = SwinV2Dataset(X_train, y_train, root_dir=train_img_fd_path, transform=transform, phase='train')
-        val_dataset = SwinV2Dataset(X_val, y_val, root_dir=train_img_fd_path, transform=transform, phase='val')
+        train_dataset = ViTH14Dataset(X_train, y_train, root_dir=train_img_fd_path, transform=transform, phase='train')
+        val_dataset = ViTH14Dataset(X_val, y_val, root_dir=train_img_fd_path, transform=transform, phase='val')
 
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
@@ -78,13 +89,15 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
             "val": val_loader
         }
 
-        model = timm.create_model(model_name, pretrained=True, num_classes=2)
-        if pretrained and use_flozen:
+        model = vit_h_14(weights=ViT_H_14_Weights.IMAGENET1K_SWAG_E2E_V1)
+        model.heads[0] = nn.Linear(in_features=1280, out_features=2, bias=True)
+        
+        if use_flozen:
             layer_count = 0
             for param in model.parameters():
                 param.requires_grad = False
                 layer_count += 1
-                if layer_count == 130:
+                if layer_count >= 200:
                     break
 
         criterion = nn.CrossEntropyLoss()
