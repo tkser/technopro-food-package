@@ -80,12 +80,12 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
 
         model = timm.create_model(model_name, pretrained=True, num_classes=2)
         if pretrained and use_flozen:
+            layer_count = 0
             for param in model.parameters():
                 param.requires_grad = False
-            
-            model.head.fc = nn.Linear(model.head.fc.in_features, 2, bias=True)
-            for param in model.head.fc.parameters():
-                param.requires_grad = True
+                layer_count += 1
+                if layer_count == 100:
+                    break
 
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.AdamW(model.parameters(), lr=learning_rate, weight_decay=1e-6)

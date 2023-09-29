@@ -97,7 +97,7 @@ def train_cv(batch_size = 16, learning_rate = 1e-05, num_epochs = 16, seed = 42,
             for param in model.parameters():
                 param.requires_grad = False
                 layer_count += 1
-                if layer_count >= 200:
+                if layer_count >= 130:
                     break
 
         criterion = nn.CrossEntropyLoss()
